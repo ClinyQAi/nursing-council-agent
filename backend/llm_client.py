@@ -46,7 +46,9 @@ async def query_azure_openai(
         print("Error: Azure OpenAI credentials not configured")
         return None
 
-    url = f"{AZURE_OPENAI_ENDPOINT}/openai/deployments/{deployment_name}/chat/completions?api-version={AZURE_OPENAI_API_VERSION}"
+    # Ensure no double slash if user provided endpoint with trailing slash
+    base_endpoint = AZURE_OPENAI_ENDPOINT.rstrip('/')
+    url = f"{base_endpoint}/openai/deployments/{deployment_name}/chat/completions?api-version={AZURE_OPENAI_API_VERSION}"
 
     headers = {
         "api-key": AZURE_OPENAI_API_KEY,
