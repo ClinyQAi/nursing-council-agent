@@ -26,10 +26,8 @@ fi
 
 # Start backend
 echo "🚀 Starting backend on port 8001..."
-cd backend
-python -m uvicorn main:app --host 0.0.0.0 --port 8001 --reload &
+python -m uvicorn backend.main:app --host 0.0.0.0 --port 8001 --reload &
 BACKEND_PID=$!
-cd ..
 
 # Wait a bit for backend to start
 sleep 3
