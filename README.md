@@ -23,14 +23,20 @@ The **Head of Nursing Education** (Chairman) then synthesizes their feedback int
 1. **Fork this repository** to your GitHub account
 2. Click the green **"Code"** button → **"Open with Codespaces"** → **"New codespace"**
 3. Wait for the environment to build (takes ~2 minutes first time)
-4. Add your OpenRouter API key:
+4. **Configure Azure Credentials**:
+   Create a `.env` file and add your Azure OpenAI details:
    ```bash
-   echo "OPENROUTER_API_KEY=your_key_here" > .env
+   cp .env.example .env
+   # Edit .env with your AZURE_OPENAI_API_KEY and ENDPOINT
    ```
-5. Run the app:
+5. **Run the app**:
    ```bash
    ./start.sh
    ```
+6. **Access**:
+   - Go to the **Ports** tab in VS Code.
+   - Right-click port **8001** (Backend) → **Port Visibility** → **Public**.
+   - Click the "Local Address" for port **5173** (Frontend) to open the app.
 
 ## Local Development
 
@@ -106,9 +112,11 @@ Edit `backend/config.py` to customize:
 - Role-specific system prompts
 - Chairman synthesis behavior
 
-## Azure Integration (Coming Soon)
+## Azure Integration
 
-For enterprise deployments requiring Azure OpenAI instead of OpenRouter, see [docs/azure-integration.md](docs/azure-integration.md).
+This project is configured to use Azure OpenAI by default. 
+- Ensure `API_BACKEND=azure` is set in your `.env` (or default config).
+- Configure your deployment names in `backend/config.py` if they differ from standard `gpt-4o`.
 
 ## License
 
