@@ -1,8 +1,25 @@
 /**
- * API client for the LLM Council backend.
+ * API client for the Nursing Council Agent backend.
  */
 
-const API_BASE = 'http://localhost:8001';
+// Dynamically determine the API base URL
+// In Codespaces, the frontend runs on port 5173 and backend on port 8001
+// We need to swap the port in the hostname
+const getApiBase = () => {
+  const hostname = window.location.hostname;
+
+  // Check if running in GitHub Codespaces
+  if (hostname.includes('.app.github.dev')) {
+    // Replace the frontend port (5173) with backend port (8001)
+    const backendHost = hostname.replace('-5173.', '-8001.');
+    return `https://${backendHost}`;
+  }
+
+  // Local development fallback
+  return 'http://localhost:8001';
+};
+
+const API_BASE = getApiBase();
 
 export const api = {
   /**
