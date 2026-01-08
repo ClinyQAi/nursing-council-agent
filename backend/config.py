@@ -1,6 +1,7 @@
 """Configuration for the Nursing Council Agent.
 
 Adapted from karpathy/llm-council for UK Nursing Education.
+Supports both OpenRouter and Azure OpenAI backends.
 """
 
 import os
@@ -8,22 +9,49 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# OpenRouter API key
+# ============================================================
+# BACKEND SELECTION
+# ============================================================
+# Set to "azure" to use Azure OpenAI, or "openrouter" for OpenRouter
+API_BACKEND = os.getenv("API_BACKEND", "azure").lower()
+
+# ============================================================
+# AZURE OPENAI CONFIGURATION
+# ============================================================
+AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")  # e.g., "https://your-resource.openai.azure.com"
+AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
+AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
+
+# Azure deployment names (you create these in Azure Portal)
+# Each council member needs a deployment
+AZURE_DEPLOYMENTS = {
+    "academic": os.getenv("AZURE_DEPLOYMENT_ACADEMIC", "gpt-4o"),
+    "clinical_mentor": os.getenv("AZURE_DEPLOYMENT_CLINICAL", "gpt-4o"),
+    "student_advocate": os.getenv("AZURE_DEPLOYMENT_STUDENT", "gpt-4o"),
+    "chairman": os.getenv("AZURE_DEPLOYMENT_CHAIRMAN", "gpt-4o"),
+}
+
+# ============================================================
+# OPENROUTER CONFIGURATION (fallback/alternative)
+# ============================================================
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
-
-# Council members - diverse LLMs configured as nursing education experts
-# Each model acts as a different educational perspective
-COUNCIL_MODELS = [
-    "openai/gpt-4o",  # The Academic - strong on research and standards
-    "anthropic/claude-sonnet-4",  # The Practitioner - empathetic, clinical reasoning
-    "google/gemini-2.5-pro-preview",  # The Innovator - creative pedagogy
-]
-
-# Chairman model - synthesizes final response as "Head of Nursing Education"
-CHAIRMAN_MODEL = "google/gemini-2.5-pro-preview"
-
-# OpenRouter API endpoint
 OPENROUTER_API_URL = "https://openrouter.ai/api/v1/chat/completions"
+
+# Council members for OpenRouter mode
+OPENROUTER_COUNCIL_MODELS = [
+    "openai/gpt-4o",
+    "anthropic/claude-sonnet-4",
+    "google/gemini-2.5-pro-preview",
+]
+OPENROUTER_CHAIRMAN_MODEL = "google/gemini-2.5-pro-preview"
+
+# ============================================================
+# COUNCIL CONFIGURATION (used by both backends)
+# ============================================================
+
+# Council member identifiers (used internally)
+COUNCIL_MEMBERS = ["academic", "clinical_mentor", "student_advocate"]
+CHAIRMAN_ID = "chairman"
 
 # Data directory for conversation storage
 DATA_DIR = "data/conversations"
@@ -48,21 +76,21 @@ When reviewing educational content, consider:
 
 # Specific role prompts for each council member
 COUNCIL_ROLES = {
-    "openai/gpt-4o": """You are 'The Academic' on the Nursing Education Council.
+    "academic": """You are 'The Academic' on the Nursing Education Council.
 Your role is to ensure all content aligns with:
 - Current NMC proficiency standards
 - Evidence-based practice guidelines (NICE, Cochrane)
 - Academic rigor and assessment validity
 Focus on: accuracy, standards alignment, and scholarly quality.""",
 
-    "anthropic/claude-sonnet-4": """You are 'The Clinical Mentor' on the Nursing Education Council.
+    "clinical_mentor": """You are 'The Clinical Mentor' on the Nursing Education Council.
 Your role is to evaluate content from a clinical practice perspective:
 - Is this realistic for a busy ward environment?
 - Does it reflect real patient interactions?
 - Will students be prepared for the realities of nursing?
 Focus on: clinical relevance, practical applicability, and compassionate care.""",
 
-    "google/gemini-2.5-pro-preview": """You are 'The Student Advocate' on the Nursing Education Council.
+    "student_advocate": """You are 'The Student Advocate' on the Nursing Education Council.
 Your role is to represent the student voice:
 - Is the language accessible and jargon-free?
 - Is the content appropriately scaffolded for learners?
