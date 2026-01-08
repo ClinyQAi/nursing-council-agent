@@ -16,16 +16,31 @@ const getApiBase = () => {
   // Check if running in GitHub Codespaces
   if (hostname.includes('.app.github.dev')) {
     // Codespaces URL formats:
-    // 1. <codespace-name>-<port>.app.github.dev (common)
-    // 2. <codespace-name>-<port>-<random>.app.github.dev (newer format)
+    // Example: fluffy-space-succotash-abc123-5173.app.github.dev
+    // We need to replace the port (5173) with 8001
 
-    // Extract the codespace name (everything before the last -<port> segment)
-    // and replace the port with 8001
-    // Pattern: matches -<digits> at the end before .app.github.dev
-    const backendHost = hostname.replace(/-\d+\.app\.github\.dev$/, '-8001.app.github.dev');
-    const apiBase = `https://${backendHost}`;
-    console.log('[Nursing Council API] Codespaces detected, API base:', apiBase);
-    return apiBase;
+    // Match pattern: captures everything up to the last hyphenated number before .app.github.dev
+    // The port is typically the last numeric segment before .app.github.dev
+    const match = hostname.match(/^(.+)-(\d+)(\.app\.github\.dev)$/);
+
+    if (match) {
+      const codespaceName = match[1];
+      const currentPort = match[2];
+      const domain = match[3];
+      console.log('[Nursing Council API] Codespace name:', codespaceName);
+      console.log('[Nursing Council API] Current port:', currentPort);
+
+      const backendHost = `${codespaceName}-8001${domain}`;
+      const apiBase = `https://${backendHost}`;
+      console.log('[Nursing Council API] Codespaces detected, API base:', apiBase);
+      return apiBase;
+    } else {
+      // Fallback: just try replacing any port-like number before .app.github.dev
+      const backendHost = hostname.replace(/-\d+\.app\.github\.dev$/, '-8001.app.github.dev');
+      const apiBase = `https://${backendHost}`;
+      console.log('[Nursing Council API] Codespaces (fallback), API base:', apiBase);
+      return apiBase;
+    }
   }
 
   // Check if running on any other dev environment with port in hostname
