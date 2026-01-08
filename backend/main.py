@@ -1,8 +1,11 @@
 """FastAPI backend for LLM Council."""
 
+import os
+from pathlib import Path
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import StreamingResponse
+from fastapi.responses import StreamingResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Dict, Any
 import uuid
@@ -12,7 +15,7 @@ import asyncio
 from . import storage
 from .council import run_full_council, generate_conversation_title, stage1_collect_responses, stage2_collect_rankings, stage3_synthesize_final, calculate_aggregate_rankings
 
-app = FastAPI(title="LLM Council API")
+app = FastAPI(title="Nursing Council Agent API")
 
 # Enable CORS for local development and GitHub Codespaces
 app.add_middleware(
@@ -199,6 +202,28 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
     )
 
 
+# ============================================================
+# STATIC FILE SERVING (for production deployment)
+# ============================================================
+# Check if frontend dist folder exists (production build)
+FRONTEND_DIST = Path(__file__).parent.parent / "frontend" / "dist"
+
+if FRONTEND_DIST.exists():
+    # Serve static assets (JS, CSS, images)
+    app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
+    
+    # Catch-all route for SPA - serve index.html for any non-API route
+    @app.get("/{full_path:path}")
+    async def serve_frontend(full_path: str):
+        # If it's an API route, this won't match due to the /api prefix
+        # Return index.html for all other routes (SPA routing)
+        index_file = FRONTEND_DIST / "index.html"
+        if index_file.exists():
+            return FileResponse(index_file)
+        raise HTTPException(status_code=404, detail="Not found")
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001)
+
