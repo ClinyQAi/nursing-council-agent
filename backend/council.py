@@ -28,6 +28,9 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
                 "response": response.get('content', '')
             })
 
+    if not stage1_results:
+        raise Exception("Failed to get responses from any council member. Please check your API key and Azure configuration.")
+
     return stage1_results
 
 

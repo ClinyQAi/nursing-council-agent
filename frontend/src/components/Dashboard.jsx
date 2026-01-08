@@ -25,7 +25,7 @@ const COUNCIL_ROLES = [
     },
 ];
 
-const Dashboard = ({ onSubmit, isLoading }) => {
+const Dashboard = ({ onSubmit, isLoading, error }) => {
     const [content, setContent] = useState('');
 
     const handleSubmit = (e) => {
@@ -49,6 +49,12 @@ const Dashboard = ({ onSubmit, isLoading }) => {
                     <br />
                     Each council member brings unique expertise to review your educational content.
                 </p>
+                {error && (
+                    <div className="error-alert">
+                        <span className="error-icon">⚠️</span>
+                        <span className="error-text">{error}</span>
+                    </div>
+                )}
             </div>
 
             {/* Main Content */}

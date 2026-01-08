@@ -12,6 +12,7 @@ function App() {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const [currentResponse, setCurrentResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
   const [view, setView] = useState('dashboard'); // 'dashboard' | 'results'
 
   // Load conversations on mount
@@ -30,6 +31,7 @@ function App() {
 
   const handleSubmit = async (content) => {
     setIsLoading(true);
+    setError(null);
     try {
       // Create a new conversation
       const newConv = await api.createConversation();
@@ -68,6 +70,7 @@ function App() {
 
           case 'error':
             console.error('Stream error:', event.message);
+            setError(event.message || 'An unknown error occurred during processing.');
             setIsLoading(false);
             break;
 
@@ -77,6 +80,7 @@ function App() {
       });
     } catch (error) {
       console.error('Failed to submit:', error);
+      setError(error.message || 'Failed to connect to the server.');
       setIsLoading(false);
     }
   };
@@ -84,6 +88,7 @@ function App() {
   const handleNewReview = () => {
     setCurrentResponse(null);
     setCurrentConversationId(null);
+    setError(null);
     setView('dashboard');
   };
 
@@ -123,7 +128,7 @@ function App() {
         {activeTab === 'council' && (
           <>
             {view === 'dashboard' && (
-              <Dashboard onSubmit={handleSubmit} isLoading={isLoading} />
+              <Dashboard onSubmit={handleSubmit} isLoading={isLoading} error={error} />
             )}
             {view === 'results' && currentResponse && (
               <ResultsView response={currentResponse} onNewReview={handleNewReview} />
