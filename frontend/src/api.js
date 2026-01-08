@@ -19,8 +19,10 @@ const getApiBase = () => {
     // 1. <codespace-name>-<port>.app.github.dev (common)
     // 2. <codespace-name>-<port>-<random>.app.github.dev (newer format)
 
-    // Replace any port number pattern with 8001
-    const backendHost = hostname.replace(/-5173(-|\.)/g, '-8001$1');
+    // Extract the codespace name (everything before the last -<port> segment)
+    // and replace the port with 8001
+    // Pattern: matches -<digits> at the end before .app.github.dev
+    const backendHost = hostname.replace(/-\d+\.app\.github\.dev$/, '-8001.app.github.dev');
     const apiBase = `https://${backendHost}`;
     console.log('[Nursing Council API] Codespaces detected, API base:', apiBase);
     return apiBase;
