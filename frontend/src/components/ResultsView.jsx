@@ -30,7 +30,7 @@ const ResultsView = ({ response, onNewReview }) => {
                         <span className="stage-label">Synthesis</span>
                     </div>
                     <div className="card-content markdown-content">
-                        <ReactMarkdown>{stage3}</ReactMarkdown>
+                        <ReactMarkdown>{stage3.response || stage3}</ReactMarkdown>
                     </div>
                 </div>
             )}
