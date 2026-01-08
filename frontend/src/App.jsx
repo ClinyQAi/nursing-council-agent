@@ -1,26 +1,23 @@
 import { useState, useEffect } from 'react';
-import Sidebar from './components/Sidebar';
-import ChatInterface from './components/ChatInterface';
+import Navbar from './components/Navbar';
+import Dashboard from './components/Dashboard';
+import ResultsView from './components/ResultsView';
+import HistoryView from './components/HistoryView';
 import { api } from './api';
 import './App.css';
 
 function App() {
+  const [activeTab, setActiveTab] = useState('council');
   const [conversations, setConversations] = useState([]);
   const [currentConversationId, setCurrentConversationId] = useState(null);
-  const [currentConversation, setCurrentConversation] = useState(null);
+  const [currentResponse, setCurrentResponse] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [view, setView] = useState('dashboard'); // 'dashboard' | 'results'
 
   // Load conversations on mount
   useEffect(() => {
     loadConversations();
   }, []);
-
-  // Load conversation details when selected
-  useEffect(() => {
-    if (currentConversationId) {
-      loadConversation(currentConversationId);
-    }
-  }, [currentConversationId]);
 
   const loadConversations = async () => {
     try {
@@ -31,134 +28,42 @@ function App() {
     }
   };
 
-  const loadConversation = async (id) => {
-    try {
-      const conv = await api.getConversation(id);
-      setCurrentConversation(conv);
-    } catch (error) {
-      console.error('Failed to load conversation:', error);
-    }
-  };
-
-  const handleNewConversation = async () => {
-    try {
-      const newConv = await api.createConversation();
-      setConversations([
-        { id: newConv.id, created_at: newConv.created_at, message_count: 0 },
-        ...conversations,
-      ]);
-      setCurrentConversationId(newConv.id);
-    } catch (error) {
-      console.error('Failed to create conversation:', error);
-    }
-  };
-
-  const handleSelectConversation = (id) => {
-    setCurrentConversationId(id);
-  };
-
-  const handleSendMessage = async (content) => {
-    if (!currentConversationId) return;
-
+  const handleSubmit = async (content) => {
     setIsLoading(true);
     try {
-      // Optimistically add user message to UI
-      const userMessage = { role: 'user', content };
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: [...prev.messages, userMessage],
-      }));
+      // Create a new conversation
+      const newConv = await api.createConversation();
+      setCurrentConversationId(newConv.id);
 
-      // Create a partial assistant message that will be updated progressively
-      const assistantMessage = {
-        role: 'assistant',
+      // Initialize response state
+      const responseData = {
         stage1: null,
         stage2: null,
         stage3: null,
-        metadata: null,
-        loading: {
-          stage1: false,
-          stage2: false,
-          stage3: false,
-        },
       };
 
-      // Add the partial assistant message
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: [...prev.messages, assistantMessage],
-      }));
-
-      // Send message with streaming
-      await api.sendMessageStream(currentConversationId, content, (eventType, event) => {
+      // Stream the council process
+      await api.sendMessageStream(newConv.id, content, (eventType, event) => {
         switch (eventType) {
-          case 'stage1_start':
-            setCurrentConversation((prev) => {
-              const messages = [...prev.messages];
-              const lastMsg = messages[messages.length - 1];
-              lastMsg.loading.stage1 = true;
-              return { ...prev, messages };
-            });
-            break;
-
           case 'stage1_complete':
-            setCurrentConversation((prev) => {
-              const messages = [...prev.messages];
-              const lastMsg = messages[messages.length - 1];
-              lastMsg.stage1 = event.data;
-              lastMsg.loading.stage1 = false;
-              return { ...prev, messages };
-            });
-            break;
-
-          case 'stage2_start':
-            setCurrentConversation((prev) => {
-              const messages = [...prev.messages];
-              const lastMsg = messages[messages.length - 1];
-              lastMsg.loading.stage2 = true;
-              return { ...prev, messages };
-            });
+            responseData.stage1 = event.data;
+            setCurrentResponse({ ...responseData });
             break;
 
           case 'stage2_complete':
-            setCurrentConversation((prev) => {
-              const messages = [...prev.messages];
-              const lastMsg = messages[messages.length - 1];
-              lastMsg.stage2 = event.data;
-              lastMsg.metadata = event.metadata;
-              lastMsg.loading.stage2 = false;
-              return { ...prev, messages };
-            });
-            break;
-
-          case 'stage3_start':
-            setCurrentConversation((prev) => {
-              const messages = [...prev.messages];
-              const lastMsg = messages[messages.length - 1];
-              lastMsg.loading.stage3 = true;
-              return { ...prev, messages };
-            });
+            responseData.stage2 = event.data;
+            setCurrentResponse({ ...responseData });
             break;
 
           case 'stage3_complete':
-            setCurrentConversation((prev) => {
-              const messages = [...prev.messages];
-              const lastMsg = messages[messages.length - 1];
-              lastMsg.stage3 = event.data;
-              lastMsg.loading.stage3 = false;
-              return { ...prev, messages };
-            });
-            break;
-
-          case 'title_complete':
-            // Reload conversations to get updated title
-            loadConversations();
+            responseData.stage3 = event.data;
+            setCurrentResponse({ ...responseData });
             break;
 
           case 'complete':
-            // Stream complete, reload conversations list
-            loadConversations();
+            setView('results');
             setIsLoading(false);
+            loadConversations();
             break;
 
           case 'error':
@@ -167,33 +72,71 @@ function App() {
             break;
 
           default:
-            console.log('Unknown event type:', eventType);
+            break;
         }
       });
     } catch (error) {
-      console.error('Failed to send message:', error);
-      // Remove optimistic messages on error
-      setCurrentConversation((prev) => ({
-        ...prev,
-        messages: prev.messages.slice(0, -2),
-      }));
+      console.error('Failed to submit:', error);
       setIsLoading(false);
+    }
+  };
+
+  const handleNewReview = () => {
+    setCurrentResponse(null);
+    setCurrentConversationId(null);
+    setView('dashboard');
+  };
+
+  const handleTabChange = (tab) => {
+    setActiveTab(tab);
+    if (tab === 'council' && !currentResponse) {
+      setView('dashboard');
+    }
+  };
+
+  const handleSelectConversation = async (id) => {
+    try {
+      const conv = await api.getConversation(id);
+      if (conv.messages && conv.messages.length >= 2) {
+        // Get the last assistant message
+        const assistantMsg = conv.messages.find((m) => m.role === 'assistant');
+        if (assistantMsg) {
+          setCurrentResponse({
+            stage1: assistantMsg.stage1,
+            stage2: assistantMsg.stage2,
+            stage3: assistantMsg.stage3,
+          });
+          setCurrentConversationId(id);
+          setView('results');
+          setActiveTab('council');
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load conversation:', error);
     }
   };
 
   return (
     <div className="app">
-      <Sidebar
-        conversations={conversations}
-        currentConversationId={currentConversationId}
-        onSelectConversation={handleSelectConversation}
-        onNewConversation={handleNewConversation}
-      />
-      <ChatInterface
-        conversation={currentConversation}
-        onSendMessage={handleSendMessage}
-        isLoading={isLoading}
-      />
+      <Navbar activeTab={activeTab} onTabChange={handleTabChange} />
+      <div className="app-content">
+        {activeTab === 'council' && (
+          <>
+            {view === 'dashboard' && (
+              <Dashboard onSubmit={handleSubmit} isLoading={isLoading} />
+            )}
+            {view === 'results' && currentResponse && (
+              <ResultsView response={currentResponse} onNewReview={handleNewReview} />
+            )}
+          </>
+        )}
+        {activeTab === 'history' && (
+          <HistoryView
+            conversations={conversations}
+            onSelectConversation={handleSelectConversation}
+          />
+        )}
+      </div>
     </div>
   );
 }
