@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
+import AddRoleModal from './AddRoleModal';
 import './Dashboard.css';
 
-const COUNCIL_ROLES = [
+const DEFAULT_ROLES = [
     {
         id: 'academic',
         name: 'The Academic',
@@ -27,11 +28,25 @@ const COUNCIL_ROLES = [
 
 const Dashboard = ({ onSubmit, isLoading, error }) => {
     const [content, setContent] = useState('');
+    const [roles, setRoles] = useState(DEFAULT_ROLES);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (content.trim() && !isLoading) {
-            onSubmit(content);
+            onSubmit(content, roles);
+        }
+    };
+
+    const handleAddRole = (newRole) => {
+        setRoles([...roles, newRole]);
+    };
+
+    const handleRemoveRole = (roleId) => {
+        // Only allow removing custom roles
+        const role = roles.find(r => r.id === roleId);
+        if (role?.isCustom) {
+            setRoles(roles.filter(r => r.id !== roleId));
         }
     };
 
@@ -102,27 +117,48 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
                                 Each council member brings a unique perspective to your content.
                             </p>
                         </div>
-                        <button className="add-role-btn">
+                        <button
+                            className="add-role-btn"
+                            onClick={() => setIsModalOpen(true)}
+                        >
                             <span>+</span> Add Role
                         </button>
                     </div>
                     <div className="roles-grid">
-                        {COUNCIL_ROLES.map((role) => (
+                        {roles.map((role) => (
                             <div
                                 key={role.id}
-                                className="role-card"
+                                className={`role-card ${role.isCustom ? 'custom-role' : ''}`}
                                 style={{ '--role-color': role.color }}
                             >
                                 <div className="role-icon">{role.icon}</div>
                                 <div className="role-info">
-                                    <h3 className="role-name">{role.name}</h3>
+                                    <h3 className="role-name">
+                                        {role.name}
+                                        {role.isCustom && <span className="custom-badge">Custom</span>}
+                                    </h3>
                                     <p className="role-description">{role.description}</p>
                                 </div>
+                                {role.isCustom && (
+                                    <button
+                                        className="remove-role-btn"
+                                        onClick={() => handleRemoveRole(role.id)}
+                                        title="Remove role"
+                                    >
+                                        ×
+                                    </button>
+                                )}
                             </div>
                         ))}
                     </div>
                 </div>
             </div>
+
+            <AddRoleModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onAddRole={handleAddRole}
+            />
         </div>
     );
 };
