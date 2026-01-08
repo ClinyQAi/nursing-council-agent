@@ -7,19 +7,41 @@
 // We need to swap the port in the hostname
 const getApiBase = () => {
   const hostname = window.location.hostname;
+  const protocol = window.location.protocol;
+
+  console.log('[Nursing Council API] Detecting environment...');
+  console.log('[Nursing Council API] Hostname:', hostname);
+  console.log('[Nursing Council API] Protocol:', protocol);
 
   // Check if running in GitHub Codespaces
   if (hostname.includes('.app.github.dev')) {
-    // Replace the frontend port (5173) with backend port (8001)
-    const backendHost = hostname.replace('-5173.', '-8001.');
-    return `https://${backendHost}`;
+    // Codespaces URL formats:
+    // 1. <codespace-name>-<port>.app.github.dev (common)
+    // 2. <codespace-name>-<port>-<random>.app.github.dev (newer format)
+
+    // Replace any port number pattern with 8001
+    const backendHost = hostname.replace(/-5173(-|\.)/g, '-8001$1');
+    const apiBase = `https://${backendHost}`;
+    console.log('[Nursing Council API] Codespaces detected, API base:', apiBase);
+    return apiBase;
+  }
+
+  // Check if running on any other dev environment with port in hostname
+  if (hostname.includes(':5173') || hostname.includes('-5173')) {
+    const backendHost = hostname.replace(/5173/g, '8001');
+    const apiBase = `${protocol}//${backendHost}`;
+    console.log('[Nursing Council API] Dev environment detected, API base:', apiBase);
+    return apiBase;
   }
 
   // Local development fallback
-  return 'http://localhost:8001';
+  const apiBase = 'http://localhost:8001';
+  console.log('[Nursing Council API] Local development, API base:', apiBase);
+  return apiBase;
 };
 
 const API_BASE = getApiBase();
+console.log('[Nursing Council API] Final API_BASE:', API_BASE);
 
 export const api = {
   /**
