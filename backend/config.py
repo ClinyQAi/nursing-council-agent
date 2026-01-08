@@ -20,7 +20,7 @@ API_BACKEND = os.getenv("API_BACKEND", "azure").lower()
 # ============================================================
 AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")  # e.g., "https://your-resource.openai.azure.com"
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
-AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
+AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-12-01-preview")
 
 # Startup logging for debugging
 print("=" * 60)
@@ -33,12 +33,12 @@ print(f"Azure API Version: {AZURE_OPENAI_API_VERSION}")
 print("=" * 60)
 
 # Azure deployment names (you create these in Azure Portal)
-# Each council member needs a deployment
+# Using single deployment for all council members
 AZURE_DEPLOYMENTS = {
-    "academic": os.getenv("AZURE_DEPLOYMENT_ACADEMIC", "gpt-4o"),
-    "clinical_mentor": os.getenv("AZURE_DEPLOYMENT_CLINICAL", "gpt-4o"),
-    "student_advocate": os.getenv("AZURE_DEPLOYMENT_STUDENT", "gpt-4o"),
-    "chairman": os.getenv("AZURE_DEPLOYMENT_CHAIRMAN", "gpt-4o"),
+    "academic": os.getenv("AZURE_DEPLOYMENT_ACADEMIC", "nursing-council"),
+    "clinical_mentor": os.getenv("AZURE_DEPLOYMENT_CLINICAL", "nursing-council"),
+    "student_advocate": os.getenv("AZURE_DEPLOYMENT_STUDENT", "nursing-council"),
+    "chairman": os.getenv("AZURE_DEPLOYMENT_CHAIRMAN", "nursing-council"),
 }
 
 # ============================================================
