@@ -41,8 +41,14 @@ export default function ChatInterface({
     return (
       <div className="chat-interface">
         <div className="empty-state">
-          <h2>Welcome to LLM Council</h2>
-          <p>Create a new conversation to get started</p>
+          <h2>🩺 Welcome to Nursing Council</h2>
+          <p>Get expert feedback on your nursing education content from AI perspectives:</p>
+          <ul style={{ textAlign: 'left', maxWidth: '400px', margin: '1rem auto' }}>
+            <li>🎓 <strong>The Academic</strong> - NMC standards alignment</li>
+            <li>🏥 <strong>The Clinical Mentor</strong> - Ward realism</li>
+            <li>👩‍🎓 <strong>The Student Advocate</strong> - Accessibility</li>
+          </ul>
+          <p>Create a new review to get started</p>
         </div>
       </div>
     );
@@ -54,7 +60,7 @@ export default function ChatInterface({
         {conversation.messages.length === 0 ? (
           <div className="empty-state">
             <h2>Start a conversation</h2>
-            <p>Ask a question to consult the LLM Council</p>
+            <p>Paste your lesson plan, assessment, or educational content for review</p>
           </div>
         ) : (
           conversation.messages.map((msg, index) => (
@@ -70,13 +76,13 @@ export default function ChatInterface({
                 </div>
               ) : (
                 <div className="assistant-message">
-                  <div className="message-label">LLM Council</div>
+                  <div className="message-label">🩺 Nursing Council</div>
 
                   {/* Stage 1 */}
                   {msg.loading?.stage1 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
-                      <span>Running Stage 1: Collecting individual responses...</span>
+                      <span>Stage 1: Council members reviewing your content...</span>
                     </div>
                   )}
                   {msg.stage1 && <Stage1 responses={msg.stage1} />}
@@ -85,7 +91,7 @@ export default function ChatInterface({
                   {msg.loading?.stage2 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
-                      <span>Running Stage 2: Peer rankings...</span>
+                      <span>Stage 2: Council members evaluating each other's feedback...</span>
                     </div>
                   )}
                   {msg.stage2 && (
@@ -100,7 +106,7 @@ export default function ChatInterface({
                   {msg.loading?.stage3 && (
                     <div className="stage-loading">
                       <div className="spinner"></div>
-                      <span>Running Stage 3: Final synthesis...</span>
+                      <span>Stage 3: Head of Nursing Education synthesizing recommendations...</span>
                     </div>
                   )}
                   {msg.stage3 && <Stage3 finalResponse={msg.stage3} />}
@@ -113,7 +119,7 @@ export default function ChatInterface({
         {isLoading && (
           <div className="loading-indicator">
             <div className="spinner"></div>
-            <span>Consulting the council...</span>
+            <span>The Nursing Council is deliberating...</span>
           </div>
         )}
 
@@ -124,7 +130,7 @@ export default function ChatInterface({
         <form className="input-form" onSubmit={handleSubmit}>
           <textarea
             className="message-input"
-            placeholder="Ask your question... (Shift+Enter for new line, Enter to send)"
+            placeholder="Paste your lesson plan, assessment, or educational content here... (Shift+Enter for new line, Enter to send)"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
