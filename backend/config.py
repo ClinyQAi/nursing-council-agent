@@ -22,6 +22,16 @@ AZURE_OPENAI_ENDPOINT = os.getenv("AZURE_OPENAI_ENDPOINT")  # e.g., "https://you
 AZURE_OPENAI_API_KEY = os.getenv("AZURE_OPENAI_API_KEY")
 AZURE_OPENAI_API_VERSION = os.getenv("AZURE_OPENAI_API_VERSION", "2024-02-15-preview")
 
+# Startup logging for debugging
+print("=" * 60)
+print("NURSING COUNCIL AGENT - CONFIGURATION")
+print("=" * 60)
+print(f"API Backend: {API_BACKEND}")
+print(f"Azure Endpoint: {AZURE_OPENAI_ENDPOINT[:50] + '...' if AZURE_OPENAI_ENDPOINT and len(AZURE_OPENAI_ENDPOINT) > 50 else AZURE_OPENAI_ENDPOINT}")
+print(f"Azure API Key: {'SET (' + AZURE_OPENAI_API_KEY[:8] + '...)' if AZURE_OPENAI_API_KEY else 'NOT SET'}")
+print(f"Azure API Version: {AZURE_OPENAI_API_VERSION}")
+print("=" * 60)
+
 # Azure deployment names (you create these in Azure Portal)
 # Each council member needs a deployment
 AZURE_DEPLOYMENTS = {

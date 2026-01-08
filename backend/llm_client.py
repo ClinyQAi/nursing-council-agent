@@ -65,20 +65,40 @@ async def query_azure_openai(
         "messages": full_messages,
     }
 
+    print(f"[Azure] Querying deployment: {deployment_name}")
+    print(f"[Azure] URL: {url}")
+    print(f"[Azure] Messages count: {len(full_messages)}")
+
     try:
         async with httpx.AsyncClient(timeout=timeout) as client:
             response = await client.post(url, headers=headers, json=payload)
+            
+            print(f"[Azure] Response status: {response.status_code}")
+            
+            if response.status_code != 200:
+                print(f"[Azure] Error response: {response.text}")
+                return None
+                
             response.raise_for_status()
 
             data = response.json()
             message = data['choices'][0]['message']
 
+            print(f"[Azure] Success! Response length: {len(message.get('content', ''))}")
             return {
                 'content': message.get('content'),
             }
 
+    except httpx.TimeoutException as e:
+        print(f"[Azure] Timeout error for {deployment_name}: {e}")
+        return None
+    except httpx.HTTPStatusError as e:
+        print(f"[Azure] HTTP error for {deployment_name}: {e.response.status_code} - {e.response.text}")
+        return None
     except Exception as e:
-        print(f"Error querying Azure deployment {deployment_name}: {e}")
+        print(f"[Azure] Unexpected error for {deployment_name}: {type(e).__name__}: {e}")
+        import traceback
+        traceback.print_exc()
         return None
 
 
