@@ -4,8 +4,6 @@ WORKDIR /app/frontend
 COPY frontend/package*.json ./
 RUN npm ci
 COPY frontend/ ./
-# Verify node_modules is clean and binaries are executable
-RUN rm -rf node_modules && npm ci && chmod +x node_modules/.bin/*
 RUN npm run build
 
 # Production stage

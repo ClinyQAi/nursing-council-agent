@@ -51,9 +51,9 @@ const getApiBase = () => {
     return apiBase;
   }
 
-  // Production on Azure Container Apps or Hugging Face Spaces
-  if (hostname.includes('azurecontainerapps.io') || hostname.includes('hf.space')) {
-    console.log('[Nursing Council API] Production environment detected (Azure/HF)');
+  // Production on Azure Container Apps
+  if (hostname.includes('azurecontainerapps.io')) {
+    console.log('[Nursing Council API] Azure production environment detected');
     return ''; // Use relative path
   }
 

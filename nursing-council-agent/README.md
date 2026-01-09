@@ -14,10 +14,6 @@ x-lfs: true
 
 > **Adapted from [karpathy/llm-council](https://github.com/karpathy/llm-council) for UK Nursing Education**
 
-[![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2)
-
-![Nursing Council Agent App](app_screenshot.png)
-
 ## Nurses as Citizen Developers 🩺💻
 
 The **Nursing Council Agent** is a prime example of the "**Nurse as Citizen Developer**" movement. It demonstrates how nursing professionals can leverage low-code and generative AI technologies to build bespoke tools that solve specific educational and clinical challenges without needing deep traditional software engineering backgrounds.
