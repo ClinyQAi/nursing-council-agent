@@ -1,25 +1,29 @@
 """3-stage LLM Council orchestration."""
 
-from typing import List, Dict, Any, Tuple
-from .llm_client import query_models_parallel, query_model, get_council_members, get_chairman
+from typing import List, Dict, Any, Tuple, Optional
+from .llm_client import query_models_parallel, query_model, query_model_with_custom_prompt, get_council_members, get_chairman
 
 
-async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
+async def stage1_collect_responses(
+    user_query: str,
+    custom_roles: Optional[List[Dict[str, Any]]] = None
+) -> List[Dict[str, Any]]:
     """
     Stage 1: Collect individual responses from all council models.
 
     Args:
         user_query: The user's question
+        custom_roles: Optional list of custom role definitions
 
     Returns:
         List of dicts with 'model' and 'response' keys
     """
     messages = [{"role": "user", "content": user_query}]
 
-    # Query all models in parallel
+    # Query standard council members in parallel
     responses = await query_models_parallel(get_council_members(), messages)
 
-    # Format results
+    # Format results from standard members
     stage1_results = []
     for model, response in responses.items():
         if response is not None:  # Only include successful responses
@@ -27,6 +31,31 @@ async def stage1_collect_responses(user_query: str) -> List[Dict[str, Any]]:
                 "model": model,
                 "response": response.get('content', '')
             })
+
+    # Query custom roles if provided
+    if custom_roles:
+        for custom_role in custom_roles:
+            custom_prompt = f"""You are {custom_role['name']}, a council member reviewing nursing educational content.
+
+Your focus area: {custom_role['description']}
+
+Review the content below through this specific lens. Provide constructive, detailed feedback that helps improve the educational quality of the material.
+
+Be specific about:
+- What works well from your perspective
+- What could be improved
+- Concrete suggestions for enhancement"""
+
+            response = await query_model_with_custom_prompt(
+                messages=messages,
+                system_prompt=custom_prompt
+            )
+            if response:
+                stage1_results.append({
+                    "model": custom_role['name'],
+                    "response": response.get('content', ''),
+                    "isCustom": True
+                })
 
     if not stage1_results:
         raise Exception("Failed to get responses from any council member. Please check your API key and Azure configuration.")

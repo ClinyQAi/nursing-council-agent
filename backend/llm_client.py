@@ -202,6 +202,32 @@ async def query_model(
         return await query_openrouter(model_or_member, messages, system_prompt, timeout)
 
 
+async def query_model_with_custom_prompt(
+    messages: List[Dict[str, str]],
+    system_prompt: str,
+    timeout: float = 120.0
+) -> Optional[Dict[str, Any]]:
+    """
+    Query a model using a custom system prompt (for custom roles).
+
+    Args:
+        messages: List of message dicts
+        system_prompt: Custom system prompt for this role
+        timeout: Request timeout
+
+    Returns:
+        Response dict with 'content', or None if failed
+    """
+    if API_BACKEND == "azure":
+        # Use the default deployment for custom roles
+        deployment = AZURE_DEPLOYMENTS.get("academic", "nursing-council")
+        return await query_azure_openai(deployment, messages, system_prompt, timeout)
+    else:
+        # OpenRouter mode - use a default model
+        model = OPENROUTER_COUNCIL_MODELS[0] if OPENROUTER_COUNCIL_MODELS else "openai/gpt-4o"
+        return await query_openrouter(model, messages, system_prompt, timeout)
+
+
 async def query_models_parallel(
     models_or_members: List[str],
     messages: List[Dict[str, str]]

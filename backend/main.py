@@ -37,9 +37,18 @@ class CreateConversationRequest(BaseModel):
     pass
 
 
+class CustomRole(BaseModel):
+    """Custom council role configuration."""
+    id: str
+    name: str
+    description: str
+    icon: str = "👤"
+
+
 class SendMessageRequest(BaseModel):
     """Request to send a message in a conversation."""
     content: str
+    custom_roles: List[CustomRole] = []
 
 
 class ConversationMetadata(BaseModel):
@@ -157,7 +166,9 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
 
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
-            stage1_results = await stage1_collect_responses(request.content)
+            # Convert custom_roles to dict format for council
+            custom_roles_dicts = [r.model_dump() for r in request.custom_roles] if request.custom_roles else None
+            stage1_results = await stage1_collect_responses(request.content, custom_roles_dicts)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings

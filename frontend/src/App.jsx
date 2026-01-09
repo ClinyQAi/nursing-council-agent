@@ -29,7 +29,7 @@ function App() {
     }
   };
 
-  const handleSubmit = async (content) => {
+  const handleSubmit = async (content, roles = []) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -44,7 +44,7 @@ function App() {
         stage3: null,
       };
 
-      // Stream the council process
+      // Stream the council process (pass custom roles)
       await api.sendMessageStream(newConv.id, content, (eventType, event) => {
         switch (eventType) {
           case 'stage1_complete':
@@ -77,7 +77,7 @@ function App() {
           default:
             break;
         }
-      });
+      }, roles);
     } catch (error) {
       console.error('Failed to submit:', error);
       setError(error.message || 'Failed to connect to the server.');
