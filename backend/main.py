@@ -58,10 +58,10 @@ class Conversation(BaseModel):
     messages: List[Dict[str, Any]]
 
 
-@app.get("/")
-async def root():
+@app.get("/api/health")
+async def health_check():
     """Health check endpoint."""
-    return {"status": "ok", "service": "LLM Council API"}
+    return {"status": "ok", "service": "Nursing Council Agent API"}
 
 
 @app.get("/api/conversations", response_model=List[ConversationMetadata])
