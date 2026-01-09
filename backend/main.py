@@ -212,6 +212,14 @@ if FRONTEND_DIST.exists():
     # Serve static assets (JS, CSS, images)
     app.mount("/assets", StaticFiles(directory=FRONTEND_DIST / "assets"), name="assets")
     
+    # Root route - serve index.html
+    @app.get("/")
+    async def serve_root():
+        index_file = FRONTEND_DIST / "index.html"
+        if index_file.exists():
+            return FileResponse(index_file)
+        return {"status": "ok", "service": "Nursing Council Agent"}
+    
     # Catch-all route for SPA - serve index.html for any non-API route
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
@@ -221,6 +229,11 @@ if FRONTEND_DIST.exists():
         if index_file.exists():
             return FileResponse(index_file)
         raise HTTPException(status_code=404, detail="Not found")
+else:
+    # Development mode - no frontend dist
+    @app.get("/")
+    async def dev_root():
+        return {"status": "ok", "service": "Nursing Council Agent API", "mode": "development"}
 
 
 if __name__ == "__main__":
