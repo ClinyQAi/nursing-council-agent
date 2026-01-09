@@ -2,9 +2,13 @@
 
 > **Adapted from [karpathy/llm-council](https://github.com/karpathy/llm-council) for UK Nursing Education**
 
-An LLM Council for nursing educators to get comprehensive feedback on lesson plans, assessments, and educational content from multiple AI perspectives.
+![Nursing Council Agent](nursing_council_hero.png)
 
-![Demo](header.jpg)
+## Nurses as Citizen Developers 🩺💻
+
+The **Nursing Council Agent** is a prime example of the "**Nurse as Citizen Developer**" movement. It demonstrates how nursing professionals can leverage low-code and generative AI technologies to build bespoke tools that solve specific educational and clinical challenges without needing deep traditional software engineering backgrounds.
+
+Developed by **Lincoln (Ai Education)**, this tool empowers nurse educators to maintain high standards of quality and consistency in curriculum design by automating multi-perspective peer reviews.
 
 ## The Concept
 
@@ -18,58 +22,30 @@ Instead of asking one AI for feedback, the **Nursing Council** convenes three AI
 
 The **Head of Nursing Education** (Chairman) then synthesizes their feedback into actionable recommendations.
 
-## Quick Start (GitHub Codespaces)
+## Advanced Features
 
-1. **Fork this repository** to your GitHub account
-2. Click the green **"Code"** button → **"Open with Codespaces"** → **"New codespace"**
-3. Wait for the environment to build (takes ~2 minutes first time)
-4. **Configure Azure Credentials**:
-   Create a `.env` file and add your Azure OpenAI details:
-   ```bash
-   cp .env.example .env
-   # Edit .env with your AZURE_OPENAI_API_KEY and ENDPOINT
-   ```
-5. **Run the app**:
-   ```bash
-   ./start.sh
-   ```
-6. **Access**:
-   - Go to the **Ports** tab in VS Code.
-   - Right-click port **8001** (Backend) → **Port Visibility** → **Public**.
-   - Click the "Local Address" for port **5173** (Frontend) to open the app.
+- 💾 **Persistent History**: Conversations are saved securely using Azure Blob Storage.
+- 📄 **Export to PDF**: Generate professional feedback reports for sharing or documentation.
+- 🎭 **Custom Roles**: Add your own expertise layers (e.g. "Public Health Lead" or "Dementia Specialist").
+- 🔐 **Azure Authentication**: Built-in Entra ID (Active Directory) protection for organizational security.
 
-## Local Development
+## Quick Start (Azure Deployment)
 
-### Prerequisites
-- Python 3.11+
-- Node.js 18+
-- [uv](https://github.com/astral-sh/uv) (Python package manager)
-- [OpenRouter API Key](https://openrouter.ai/keys)
+This repository is optimized for deployment to **Azure Container Apps**.
 
-### Setup
+1. **Deploy to Azure**: Use the provided Dockerfile to build and push to Azure Container Registry.
+2. **Environment Variables**:
+   - `AZURE_OPENAI_API_KEY`: Your model key.
+   - `AZURE_OPENAI_ENDPOINT`: Your Azure endpoint.
+   - `AZURE_STORAGE_CONNECTION_STRING`: For persistent history.
+3. **Authentication**: Enable "Easy Auth" (Microsoft provider) in the Azure Portal or via CLI.
 
-```bash
-# Clone the repo
-git clone https://github.com/YOUR_USERNAME/nursing-council-agent.git
-cd nursing-council-agent
+## Local Development (GitHub Codespaces)
 
-# Install Python dependencies
-pip install uv
-uv sync
-
-# Install frontend dependencies
-cd frontend && npm install && cd ..
-
-# Set your API key
-echo "OPENROUTER_API_KEY=your_key_here" > .env
-
-# Start the app
-./start.sh
-```
-
-The app will be available at:
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:8000
+1. **Fork this repository** to your GitHub account.
+2. Click the green **"Code"** button → **"Open with Codespaces"**.
+3. Create a `.env` file with your credentials.
+4. Run `./start.sh` and make port **8001** public.
 
 ## How It Works
 
@@ -105,23 +81,11 @@ The app will be available at:
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
-## Configuration
-
-Edit `backend/config.py` to customize:
-- Council member models
-- Role-specific system prompts
-- Chairman synthesis behavior
-
-## Azure Integration
-
-This project is configured to use Azure OpenAI by default. 
-- Ensure `API_BACKEND=azure` is set in your `.env` (or default config).
-- Configure your deployment names in `backend/config.py` if they differ from standard `gpt-4o`.
-
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Part of the [AI Educator Toolkit](https://practicedev.cloud)**
+**Built by Lincoln @ [Ai Education](https://practicedev.cloud)**
+*Empowering nursing through AI Literacy and Citizen Development.*
