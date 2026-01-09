@@ -51,6 +51,12 @@ const getApiBase = () => {
     return apiBase;
   }
 
+  // Production on Azure Container Apps
+  if (hostname.includes('azurecontainerapps.io')) {
+    console.log('[Nursing Council API] Azure production environment detected');
+    return ''; // Use relative path
+  }
+
   // Local development fallback
   const apiBase = 'http://localhost:8001';
   console.log('[Nursing Council API] Local development, API base:', apiBase);
