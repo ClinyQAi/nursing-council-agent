@@ -1,4 +1,4 @@
-"""JSON-based storage for conversations."""
+"""JSON-based storage for conversations with Azure Blob Storage support."""
 
 import json
 import os
@@ -6,6 +6,24 @@ from datetime import datetime
 from typing import List, Dict, Any, Optional
 from pathlib import Path
 from .config import DATA_DIR
+
+# Try to import blob storage (may fail if azure-storage-blob not installed)
+try:
+    from .blob_storage import (
+        save_conversation_to_blob,
+        load_conversation_from_blob,
+        list_conversations_from_blob,
+        is_blob_storage_available
+    )
+    BLOB_AVAILABLE = True
+except ImportError:
+    BLOB_AVAILABLE = False
+    is_blob_storage_available = lambda: False
+
+
+def use_blob_storage() -> bool:
+    """Check if we should use blob storage."""
+    return BLOB_AVAILABLE and is_blob_storage_available()
 
 
 def ensure_data_dir():
@@ -37,10 +55,14 @@ def create_conversation(conversation_id: str) -> Dict[str, Any]:
         "messages": []
     }
 
-    # Save to file
+    # Save to local file
     path = get_conversation_path(conversation_id)
     with open(path, 'w') as f:
         json.dump(conversation, f, indent=2)
+    
+    # Also save to blob storage if available
+    if use_blob_storage():
+        save_conversation_to_blob(conversation)
 
     return conversation
 
@@ -55,8 +77,14 @@ def get_conversation(conversation_id: str) -> Optional[Dict[str, Any]]:
     Returns:
         Conversation dict or None if not found
     """
+    # Try blob storage first if available
+    if use_blob_storage():
+        conversation = load_conversation_from_blob(conversation_id)
+        if conversation:
+            return conversation
+    
+    # Fall back to local file
     path = get_conversation_path(conversation_id)
-
     if not os.path.exists(path):
         return None
 
@@ -73,9 +101,14 @@ def save_conversation(conversation: Dict[str, Any]):
     """
     ensure_data_dir()
 
+    # Save to local file
     path = get_conversation_path(conversation['id'])
     with open(path, 'w') as f:
         json.dump(conversation, f, indent=2)
+    
+    # Also save to blob storage if available
+    if use_blob_storage():
+        save_conversation_to_blob(conversation)
 
 
 def list_conversations() -> List[Dict[str, Any]]:
@@ -85,6 +118,13 @@ def list_conversations() -> List[Dict[str, Any]]:
     Returns:
         List of conversation metadata dicts
     """
+    # Use blob storage if available
+    if use_blob_storage():
+        blob_convs = list_conversations_from_blob()
+        if blob_convs:
+            return blob_convs
+    
+    # Fall back to local files
     ensure_data_dir()
 
     conversations = []
