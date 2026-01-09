@@ -17,15 +17,15 @@ from .council import run_full_council, generate_conversation_title, stage1_colle
 
 app = FastAPI(title="Nursing Council Agent API")
 
-# Enable CORS for local development and GitHub Codespaces
+# Enable CORS for local development, GitHub Codespaces, and Azure Container Apps
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
     ],
-    # Allow any Codespaces subdomain
-    allow_origin_regex=r"https://.*\.app\.github\.dev",
+    # Allow any Codespaces subdomain and Azure Container Apps
+    allow_origin_regex=r"https://.*\.(app\.github\.dev|azurecontainerapps\.io)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
