@@ -186,4 +186,27 @@ export const api = {
       }
     }
   },
+
+  /**
+   * Get current user profile (if authenticated).
+   * Returns null if not logged in.
+   */
+  async getCurrentUser() {
+    try {
+      if (API_BASE === '') {
+        // Production Azure
+        const response = await fetch('/.auth/me');
+        if (response.ok) {
+          const payload = await response.json();
+          if (payload.length > 0) {
+            return payload[0].user_claims.find(c => c.typ === 'name')?.val || payload[0].user_id;
+          }
+        }
+      }
+      return null;
+    } catch (e) {
+      console.warn('Failed to fetch user:', e);
+      return null;
+    }
+  },
 };

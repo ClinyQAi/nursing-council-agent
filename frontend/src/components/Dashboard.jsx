@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AddRoleModal from './AddRoleModal';
+import { api } from '../api';
 import './Dashboard.css';
 
 const DEFAULT_ROLES = [
@@ -30,6 +31,27 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
     const [content, setContent] = useState('');
     const [roles, setRoles] = useState(DEFAULT_ROLES);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [authChecked, setAuthChecked] = useState(false);
+    const [showLogin, setShowLogin] = useState(false);
+
+    useEffect(() => {
+        const checkAuth = async () => {
+            const user = await api.getCurrentUser();
+            setCurrentUser(user);
+            // If running on local dev (api base not empty), we don't force login UI
+            // But if user is null and we are in prod (api base empty), show login hint
+            if (!user && window.location.hostname.includes('azurecontainerapps.io')) {
+                setShowLogin(true);
+            }
+            setAuthChecked(true);
+        };
+        checkAuth();
+    }, []);
+
+    const handleLogin = () => {
+        window.location.href = '/.auth/login/aad';
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -37,6 +59,7 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
             onSubmit(content, roles);
         }
     };
+
 
     const handleAddRole = (newRole) => {
         setRoles([...roles, newRole]);
@@ -58,12 +81,29 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
                     <span>🎓</span>
                     <span>Role-Based Review</span>
                 </div>
+                {currentUser && (
+                    <div className="user-welcome">
+                        👋 Welcome, {currentUser}
+                    </div>
+                )}
                 <h1 className="hero-title">Nursing Council</h1>
                 <p className="hero-subtitle">
                     Get comprehensive feedback from multiple AI perspectives.
                     <br />
                     Each council member brings unique expertise to review your educational content.
                 </p>
+
+                {showLogin && !currentUser && (
+                    <div className="login-prompt" style={{ marginTop: '20px' }}>
+                        <p style={{ marginBottom: '10px', color: '#fca5a5' }}>
+                            Authentication Required
+                        </p>
+                        <button className="login-btn" onClick={handleLogin}>
+                            🔒 Login with Microsoft
+                        </button>
+                    </div>
+                )}
+
                 {error && (
                     <div className="error-alert">
                         <span className="error-icon">⚠️</span>

@@ -32,19 +32,50 @@
     color: var(--text-primary);
 }
 
-.new-review-btn {
-    display: inline-flex;
+.header-actions {
+    display: flex;
+    gap: 1rem;
+}
+
+.new-review-btn,
+.export-btn {
+    display: flex;
     align-items: center;
     gap: 8px;
     padding: 12px 20px;
-    background: var(--accent-gradient);
-    border: none;
     border-radius: 10px;
-    color: white;
-    font-size: 0.9rem;
     font-weight: 600;
     cursor: pointer;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.new-review-btn {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+}
+
+.new-review-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-glow);
+}
+
+.export-btn {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    backdrop-filter: blur(10px);
+}
+
+.export-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: translateY(-2px);
+}
+
+.export-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
 }
 
 .new-review-btn:hover {

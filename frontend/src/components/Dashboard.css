@@ -45,6 +45,29 @@
     line-height: 1.7;
 }
 
+.user-welcome {
+    margin-bottom: 16px;
+    font-size: 1rem;
+    color: var(--accent-primary);
+    font-weight: 600;
+}
+
+.login-btn {
+    padding: 12px 24px;
+    background: #0078d4;
+    /* Microsoft Blue */
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.login-btn:hover {
+    background: #006abc;
+}
+
 /* Content Area */
 .dashboard-content {
     width: 100%;
