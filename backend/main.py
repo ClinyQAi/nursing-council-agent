@@ -214,6 +214,40 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
 
 
 # ============================================================
+# EXPORT API
+# ============================================================
+
+@app.post("/api/conversations/{conversation_id}/export/pdf")
+async def export_conversation_pdf(conversation_id: str):
+    """
+    Export a conversation as a PDF report.
+    """
+    conversation = storage.get_conversation(conversation_id)
+    if conversation is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    
+    try:
+        from .export import generate_pdf_report
+        pdf_bytes = generate_pdf_report(conversation)
+        
+        # Determine filename
+        title = conversation.get('title', 'report')
+        safe_title = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip().replace(' ', '_')
+        filename = f"{safe_title}.pdf"
+        
+        return StreamingResponse(
+            io.BytesIO(pdf_bytes),
+            media_type="application/pdf",
+            headers={
+                "Content-Disposition": f'attachment; filename="{filename}"'
+            }
+        )
+    except Exception as e:
+        print(f"Export error: {e}")
+        raise HTTPException(status_code=500, detail=f"Failed to generate PDF: {str(e)}")
+
+
+# ============================================================
 # STATIC FILE SERVING (for production deployment)
 # ============================================================
 # Check if frontend dist folder exists (production build)

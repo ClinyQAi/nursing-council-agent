@@ -1,9 +1,16 @@
 import React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { api } from '../api';
 import './ResultsView.css';
 
 const ResultsView = ({ response, onNewReview }) => {
-    const { stage1, stage2, stage3 } = response;
+    const { stage1, stage2, stage3, id } = response;
+
+    const handleExport = () => {
+        if (id) {
+            api.exportConversationPdf(id);
+        }
+    };
 
     return (
         <div className="results-view">
@@ -16,9 +23,14 @@ const ResultsView = ({ response, onNewReview }) => {
                     </div>
                     <h1 className="results-title">Council Feedback</h1>
                 </div>
-                <button className="new-review-btn" onClick={onNewReview}>
-                    <span>✨</span> New Review
-                </button>
+                <div className="header-actions">
+                    <button className="export-btn" onClick={handleExport} disabled={!id}>
+                        <span>📄</span> Export PDF
+                    </button>
+                    <button className="new-review-btn" onClick={onNewReview}>
+                        <span>✨</span> New Review
+                    </button>
+                </div>
             </div>
 
             {/* Stage 3: Final Synthesis (Show First) */}
