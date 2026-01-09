@@ -1,0 +1,28 @@
+
+cff-version: 1.2.0
+title: Nursing Council Agent
+message: >-
+  If you use this software in your research or educational
+  curriculum, please cite it using the metadata from this
+  file.
+type: software
+authors:
+  - name: Ai Education
+    email: lincoln@practicedev.cloud
+    alias: NurseCitizenDeveloper
+repository-code: 'https://github.com/ClinyQAi/nursing-council-agent'
+url: 'https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2'
+abstract: >-
+  An AI-powered multi-agent system that simulates a panel of
+  nursing experts (Academic, Clinical Mentor, Student
+  Advocate) to provide comprehensive feedback on nursing
+  educational materials. Adapted for the UK Nursing and Midwifery Council (NMC) context.
+keywords:
+  - nursing education
+  - artificial intelligence
+  - citizen development
+  - nmc standards
+  - multi-agent systems
+license: MIT
+version: 2.0.0
+date-released: '2025-01-09'

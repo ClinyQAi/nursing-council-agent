@@ -1,0 +1,42 @@
+
+name: 🩺 New Expert Persona Request
+description: Suggest a new specialist role for the Council (e.g. Mental Health Nurse, Patient Safety Lead)
+title: "[Persona]: "
+labels: ["enhancement", "clinical-content"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping us expand the Council! As a nurse, you know best who needs to be in the room.
+  
+  - type: input
+    id: role_name
+    attributes:
+      label: Role Name
+      description: e.g. "The Digital Health Specialist" or "The Paediatric Nurse"
+      placeholder: The ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: focus_areas
+    attributes:
+      label: What is their main focus?
+      description: What are the 3-5 things this person cares about most? (e.g., "Medication safety calculations, safeguarding protocols, family-centred care")
+    validations:
+      required: true
+
+  - type: textarea
+    id: personality
+    attributes:
+      label: Personality / Voice
+      description: How do they speak? Are they strict and formal? Warm and encouraging? Highly technical?
+      placeholder: "This reviewer is strict about protocol but very supportive of student anxiety..."
+    validations:
+      required: false
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Why do we need this role?
+      description: What gap does the current council (Academic, Clinical, Student) miss?
