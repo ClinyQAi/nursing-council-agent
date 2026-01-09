@@ -1,3 +1,14 @@
+---
+title: Nursing Council Agent
+emoji: 🩺
+colorFrom: purple
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+license: mit
+---
+
 # Nursing Council Agent
 
 > **Adapted from [karpathy/llm-council](https://github.com/karpathy/llm-council) for UK Nursing Education**

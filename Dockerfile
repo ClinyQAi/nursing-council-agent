@@ -28,12 +28,12 @@ COPY --from=frontend-build /app/frontend/dist ./frontend/dist
 # Create data directory for conversations
 RUN mkdir -p data/conversations
 
-# Expose port
-EXPOSE 8001
+# Expose port (7860 is default for Hugging Face Spaces)
+EXPOSE 7860
 
-# Environment variables (set these in Azure Container Apps)
+# Environment variables
 ENV API_BACKEND=azure
 ENV PYTHONUNBUFFERED=1
 
 # Start command - backend serves frontend static files too
-CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["python", "-m", "uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "7860"]

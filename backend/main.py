@@ -24,8 +24,8 @@ app.add_middleware(
         "http://localhost:5173",
         "http://localhost:3000",
     ],
-    # Allow any Codespaces subdomain and Azure Container Apps
-    allow_origin_regex=r"https://.*\.(app\.github\.dev|azurecontainerapps\.io)",
+    # Allow any Codespaces subdomain, Azure Container Apps, and Hugging Face Spaces
+    allow_origin_regex=r"https://.*\.(app\.github\.dev|azurecontainerapps\.io|hf\.space)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
