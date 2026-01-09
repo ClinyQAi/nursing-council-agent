@@ -63,37 +63,7 @@ This repository is optimized for deployment to **Azure Container Apps**.
 
 ## How It Works
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│ INPUT: "Review my lesson plan on medication administration"        │
-└─────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-    ┌───────────────────────────────────────────────────────────┐
-    │                STAGE 1: Individual Reviews                 │
-    │  ┌──────────┐   ┌──────────────┐   ┌──────────────────┐   │
-    │  │ Academic │   │ Clin. Mentor │   │ Student Advocate │   │
-    │  └──────────┘   └──────────────┘   └──────────────────┘   │
-    └───────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-    ┌───────────────────────────────────────────────────────────┐
-    │               STAGE 2: Peer Ranking (Anonymized)           │
-    │   Each council member ranks the others' responses          │
-    └───────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-    ┌───────────────────────────────────────────────────────────┐
-    │                   STAGE 3: Synthesis                       │
-    │         Head of Nursing Education (Chairman)               │
-    │         Combines all perspectives + rankings               │
-    └───────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│ OUTPUT: Comprehensive, balanced feedback with specific suggestions  │
-└─────────────────────────────────────────────────────────────────────┘
-```
+![How Nursing Council Works](how_it_works.png)
 
 ## License
 
