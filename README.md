@@ -67,6 +67,12 @@ This repository is optimized for **Azure Container Apps**:
 
 ![How Nursing Council Works](how_it_works.png)
 
+## Citation
+
+If you use this software in your research or practice, please cite it as:
+
+> Lincoln Gombedza. (2025). Nursing Council Agent (Version 2.0.0) [Computer software]. https://github.com/ClinyQAi/nursing-council-agent
+
 ## License
 
 MIT License - See [LICENSE](LICENSE) for details.
