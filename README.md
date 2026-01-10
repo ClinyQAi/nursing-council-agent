@@ -16,6 +16,8 @@ x-lfs: true
 
 [![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2)
 [![AI in Nursing Education: A Multimodal Learning Toolkit](https://img.shields.io/badge/📚%20AI%20in%20Nursing-Toolkit-purple)](https://practicedev.cloud/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+![GitHub last commit](https://img.shields.io/github/last-commit/ClinyQAi/nursing-council-agent)
 
 ![Nursing Council Agent App](app_screenshot.png)
 
