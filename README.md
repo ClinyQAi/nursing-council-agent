@@ -12,19 +12,29 @@ x-lfs: true
 
 # Nursing Council Agent
 
-> **Adapted from [karpathy/llm-council](https://github.com/karpathy/llm-council) for UK Nursing Education**
+> **Part of [AI in Nursing Education: A Multimodal Learning Toolkit](https://github.com/ClinicalQualityAI/AI-Educator-Toolkit)**
 
 [![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2)
+[![AI Educator Toolkit](https://img.shields.io/badge/📚%20AI%20Educator-Toolkit-purple)](https://ai-educator-toolkit.practicedev.cloud)
 
 ![Nursing Council Agent App](app_screenshot.png)
 
-## Nurses as Citizen Developers 🩺💻
+## About
 
-The **Nursing Council Agent** is a prime example of the "**Nurse as Citizen Developer**" movement. It demonstrates how nursing professionals can leverage low-code and generative AI technologies to build bespoke tools that solve specific educational and clinical challenges without needing deep traditional software engineering backgrounds.
+The **Nursing Council Agent** is an AI-powered multi-perspective peer review tool designed specifically for nursing education. It leverages the "**Council of Models**" approach—originally pioneered by [Andrej Karpathy](https://github.com/karpathy/llm-council)—to provide comprehensive, balanced feedback on educational content.
 
-Developed by **Lincoln (Ai Education)**, this tool empowers nurse educators to maintain high standards of quality and consistency in curriculum design by automating multi-perspective peer reviews.
+This project demonstrates how **Generative AI** can enhance quality assurance in curriculum design while promoting the "**Nurse as Citizen Developer**" movement, empowering nursing professionals to build bespoke AI tools without deep software engineering expertise.
 
-## The Concept
+### Key Features
+
+- 🎓 **Multi-Perspective Review**: Three AI personas (Academic, Clinical Mentor, Student Advocate) provide diverse feedback
+- 🔑 **Bring Your Own Key (BYOK)**: Use your own API keys for OpenAI, Anthropic, Google Gemini, or DeepSeek
+- 💾 **Persistent History**: Conversations saved securely via Azure Blob Storage
+- 📄 **Export to PDF**: Generate professional feedback reports
+- 🎭 **Custom Roles**: Add specialized reviewers (e.g., "Dementia Specialist", "Public Health Lead")
+- 🔐 **Enterprise Ready**: Azure AD authentication for organizational security
+
+## The Council Approach
 
 Instead of asking one AI for feedback, the **Nursing Council** convenes three AI "experts" who each bring a different perspective:
 
@@ -36,30 +46,22 @@ Instead of asking one AI for feedback, the **Nursing Council** convenes three AI
 
 The **Head of Nursing Education** (Chairman) then synthesizes their feedback into actionable recommendations.
 
-## Advanced Features
+## Quick Start
 
-- 💾 **Persistent History**: Conversations are saved securely using Azure Blob Storage.
-- 📄 **Export to PDF**: Generate professional feedback reports for sharing or documentation.
-- 🎭 **Custom Roles**: Add your own expertise layers (e.g. "Public Health Lead" or "Dementia Specialist").
-- 🔐 **Azure Authentication**: Built-in Entra ID (Active Directory) protection for organizational security.
+### Hugging Face Spaces (Easiest)
+Visit the [Live Demo](https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2) and use the Settings ⚙️ icon to configure your own API key.
 
-## Quick Start (Azure Deployment)
-
-This repository is optimized for deployment to **Azure Container Apps**.
-
-1. **Deploy to Azure**: Use the provided Dockerfile to build and push to Azure Container Registry.
-2. **Environment Variables**:
-   - `AZURE_OPENAI_API_KEY`: Your model key.
-   - `AZURE_OPENAI_ENDPOINT`: Your Azure endpoint.
-   - `AZURE_STORAGE_CONNECTION_STRING`: For persistent history.
-3. **Authentication**: Enable "Easy Auth" (Microsoft provider) in the Azure Portal or via CLI.
-
-## Local Development (GitHub Codespaces)
-
+### Local Development (GitHub Codespaces)
 1. **Fork this repository** to your GitHub account.
 2. Click the green **"Code"** button → **"Open with Codespaces"**.
 3. Create a `.env` file with your credentials.
 4. Run `./start.sh` and make port **8001** public.
+
+### Azure Deployment
+This repository is optimized for **Azure Container Apps**:
+- `AZURE_OPENAI_API_KEY` / `AZURE_OPENAI_ENDPOINT`: For LLM access
+- `AZURE_STORAGE_CONNECTION_STRING`: For persistent history
+- Enable **Easy Auth** (Microsoft provider) for enterprise security
 
 ## How It Works
 
@@ -71,5 +73,25 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ---
 
-**Built by Lincoln @ [Ai Education](https://practicedev.cloud)**
-*Empowering nursing through AI Literacy and Citizen Development.*
+## About the Author
+
+**Lincoln Gombedza** is a **Registered Learning Disability Nurse (RNLD)** and **Practice Educator** with a passion for leveraging AI to enhance nursing education and clinical practice. As the founder of [Ai Education](https://practicedev.cloud), Lincoln champions the "Nurse as Citizen Developer" movement—empowering healthcare professionals to build their own AI-powered tools.
+
+## Acknowledgements
+
+This project would not be possible without the contributions of the open-source community:
+
+- **[Andrej Karpathy](https://github.com/karpathy)** – For the original [llm-council](https://github.com/karpathy/llm-council) concept that inspired this adaptation
+- **[LiteLLM](https://github.com/BerriAI/litellm)** – For providing unified LLM provider abstraction
+- **[Hugging Face](https://huggingface.co)** – For hosting and community support
+- **[Foundation of Nursing Studies (FoNS)](https://fons.org)** – For person-centred care principles that inform the review criteria
+- **The NMC (Nursing and Midwifery Council)** – For standards that guide quality nursing education
+
+Special thanks to all nursing educators and students who provided feedback during development.
+
+---
+
+**Built with ❤️ by Lincoln Gombedza @ [Ai Education](https://practicedev.cloud)**
+
+*Part of the [AI in Nursing Education: A Multimodal Learning Toolkit](https://ai-educator-toolkit.practicedev.cloud)*
+
