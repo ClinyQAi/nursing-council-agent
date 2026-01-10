@@ -2,7 +2,7 @@
 
 import os
 from pathlib import Path
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import StreamingResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
@@ -97,11 +97,24 @@ async def get_conversation(conversation_id: str):
 
 
 @app.post("/api/conversations/{conversation_id}/message")
-async def send_message(conversation_id: str, request: SendMessageRequest):
+async def send_message(
+    conversation_id: str, 
+    request: SendMessageRequest,
+    x_provider: str = Header(None, alias="X-Provider"),
+    x_model: str = Header(None, alias="X-Model"),
+    x_api_key: str = Header(None, alias="X-API-Key")
+):
     """
     Send a message and run the 3-stage council process.
     Returns the complete response with all stages.
     """
+    # Build LLM config from headers or defaults
+    llm_config = {
+        "provider": x_provider or "azure",
+        "model": x_model or "gpt-4o",
+        "api_key": x_api_key or ""
+    }
+
     # Check if conversation exists
     conversation = storage.get_conversation(conversation_id)
     if conversation is None:
@@ -115,13 +128,25 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
     # If this is the first message, generate a title
     if is_first_message:
-        title = await generate_conversation_title(request.content)
-        storage.update_conversation_title(conversation_id, title)
+        try:
+            title = await generate_conversation_title(request.content, llm_config)
+            storage.update_conversation_title(conversation_id, title)
+        except Exception:
+            # Non-critical, ignore logic error in title gen
+            pass
 
     # Run the 3-stage council process
-    stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
-        request.content
-    )
+    # Convert custom roles list to list of dicts if needed
+    custom_roles_dicts = [r.model_dump() for r in request.custom_roles] if request.custom_roles else None
+
+    try:
+        stage1_results, stage2_results, stage3_result, metadata = await run_full_council(
+            request.content,
+            custom_roles=custom_roles_dicts,
+            llm_config=llm_config
+        )
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
     # Add assistant message with all stages
     storage.add_assistant_message(
@@ -141,11 +166,24 @@ async def send_message(conversation_id: str, request: SendMessageRequest):
 
 
 @app.post("/api/conversations/{conversation_id}/message/stream")
-async def send_message_stream(conversation_id: str, request: SendMessageRequest):
+async def send_message_stream(
+    conversation_id: str, 
+    request: SendMessageRequest,
+    x_provider: str = Header(None, alias="X-Provider"),
+    x_model: str = Header(None, alias="X-Model"),
+    x_api_key: str = Header(None, alias="X-API-Key")
+):
     """
     Send a message and stream the 3-stage council process.
     Returns Server-Sent Events as each stage completes.
     """
+    # Build LLM config
+    llm_config = {
+        "provider": x_provider or "azure",
+        "model": x_model or "gpt-4o",
+        "api_key": x_api_key or ""
+    }
+
     # Check if conversation exists
     conversation = storage.get_conversation(conversation_id)
     if conversation is None:
@@ -162,31 +200,34 @@ async def send_message_stream(conversation_id: str, request: SendMessageRequest)
             # Start title generation in parallel (don't await yet)
             title_task = None
             if is_first_message:
-                title_task = asyncio.create_task(generate_conversation_title(request.content))
+                title_task = asyncio.create_task(generate_conversation_title(request.content, llm_config))
 
             # Stage 1: Collect responses
             yield f"data: {json.dumps({'type': 'stage1_start'})}\n\n"
             # Convert custom_roles to dict format for council
             custom_roles_dicts = [r.model_dump() for r in request.custom_roles] if request.custom_roles else None
-            stage1_results = await stage1_collect_responses(request.content, custom_roles_dicts)
+            stage1_results = await stage1_collect_responses(request.content, custom_roles_dicts, llm_config)
             yield f"data: {json.dumps({'type': 'stage1_complete', 'data': stage1_results})}\n\n"
 
             # Stage 2: Collect rankings
             yield f"data: {json.dumps({'type': 'stage2_start'})}\n\n"
-            stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results)
+            stage2_results, label_to_model = await stage2_collect_rankings(request.content, stage1_results, llm_config)
             aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
             yield f"data: {json.dumps({'type': 'stage2_complete', 'data': stage2_results, 'metadata': {'label_to_model': label_to_model, 'aggregate_rankings': aggregate_rankings}})}\n\n"
 
             # Stage 3: Synthesize final answer
             yield f"data: {json.dumps({'type': 'stage3_start'})}\n\n"
-            stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results)
+            stage3_result = await stage3_synthesize_final(request.content, stage1_results, stage2_results, llm_config)
             yield f"data: {json.dumps({'type': 'stage3_complete', 'data': stage3_result})}\n\n"
 
             # Wait for title generation if it was started
             if title_task:
-                title = await title_task
-                storage.update_conversation_title(conversation_id, title)
-                yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                try:
+                    title = await title_task
+                    storage.update_conversation_title(conversation_id, title)
+                    yield f"data: {json.dumps({'type': 'title_complete', 'data': {'title': title}})}\n\n"
+                except Exception:
+                    pass
 
             # Save complete assistant message
             storage.add_assistant_message(

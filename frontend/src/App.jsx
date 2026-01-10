@@ -29,7 +29,7 @@ function App() {
     }
   };
 
-  const handleSubmit = async (content, roles = []) => {
+  const handleSubmit = async (content, roles = [], llmConfig = {}) => {
     setIsLoading(true);
     setError(null);
     try {
@@ -77,7 +77,7 @@ function App() {
           default:
             break;
         }
-      }, roles);
+      }, roles, llmConfig);
     } catch (error) {
       console.error('Failed to submit:', error);
       setError(error.message || 'Failed to connect to the server.');

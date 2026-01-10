@@ -27,10 +27,14 @@ const DEFAULT_ROLES = [
     },
 ];
 
+import SettingsModal from './SettingsModal';
+
 const Dashboard = ({ onSubmit, isLoading, error }) => {
     const [content, setContent] = useState('');
     const [roles, setRoles] = useState(DEFAULT_ROLES);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [llmConfig, setLlmConfig] = useState({});
     const [currentUser, setCurrentUser] = useState(null);
     const [authChecked, setAuthChecked] = useState(false);
     const [showLogin, setShowLogin] = useState(false);
@@ -47,6 +51,10 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
             setAuthChecked(true);
         };
         checkAuth();
+
+        // Load initial LLM config
+        const storedConfig = JSON.parse(localStorage.getItem('llm_config') || '{}');
+        setLlmConfig(storedConfig);
     }, []);
 
     const handleLogin = () => {
@@ -56,10 +64,13 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
     const handleSubmit = (e) => {
         e.preventDefault();
         if (content.trim() && !isLoading) {
-            onSubmit(content, roles);
+            onSubmit(content, roles, llmConfig);
         }
     };
 
+    const handleSettingsSave = (newConfig) => {
+        setLlmConfig(newConfig);
+    };
 
     const handleAddRole = (newRole) => {
         setRoles([...roles, newRole]);
@@ -77,6 +88,15 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
         <div className="dashboard">
             {/* Hero Section */}
             <div className="dashboard-hero">
+                <div className="hero-top-actions">
+                    <button
+                        className="settings-btn"
+                        onClick={() => setIsSettingsOpen(true)}
+                        title="AI Settings"
+                    >
+                        ⚙️
+                    </button>
+                </div>
                 <div className="hero-badge">
                     <span>🎓</span>
                     <span>Role-Based Review</span>
@@ -117,9 +137,16 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
                 {/* Input Card */}
                 <div className="content-card">
                     <h2 className="card-title">Content to Review</h2>
-                    <p className="card-description">
-                        Paste your lesson plan, assessment, or educational content below.
-                    </p>
+                    <div className="card-subtitle-row">
+                        <p className="card-description">
+                            Paste your lesson plan, assessment, or educational content below.
+                        </p>
+                        {llmConfig.provider && llmConfig.provider !== 'azure' && (
+                            <span className="provider-badge" title="Using custom provider">
+                                By {llmConfig.provider} ({llmConfig.model})
+                            </span>
+                        )}
+                    </div>
                     <form onSubmit={handleSubmit}>
                         <textarea
                             className="content-textarea"
@@ -184,6 +211,7 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
                                         className="remove-role-btn"
                                         onClick={() => handleRemoveRole(role.id)}
                                         title="Remove role"
+                                        type="button"
                                     >
                                         ×
                                     </button>
@@ -198,6 +226,12 @@ const Dashboard = ({ onSubmit, isLoading, error }) => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onAddRole={handleAddRole}
+            />
+
+            <SettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                onSave={handleSettingsSave}
             />
         </div>
     );

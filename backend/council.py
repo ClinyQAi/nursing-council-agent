@@ -6,22 +6,16 @@ from .llm_client import query_models_parallel, query_model, query_model_with_cus
 
 async def stage1_collect_responses(
     user_query: str,
-    custom_roles: Optional[List[Dict[str, Any]]] = None
+    custom_roles: Optional[List[Dict[str, Any]]] = None,
+    llm_config: Optional[Dict[str, str]] = None
 ) -> List[Dict[str, Any]]:
     """
     Stage 1: Collect individual responses from all council models.
-
-    Args:
-        user_query: The user's question
-        custom_roles: Optional list of custom role definitions
-
-    Returns:
-        List of dicts with 'model' and 'response' keys
     """
     messages = [{"role": "user", "content": user_query}]
 
     # Query standard council members in parallel
-    responses = await query_models_parallel(get_council_members(), messages)
+    responses = await query_models_parallel(get_council_members(), messages, llm_config)
 
     # Format results from standard members
     stage1_results = []
@@ -48,7 +42,8 @@ Be specific about:
 
             response = await query_model_with_custom_prompt(
                 messages=messages,
-                system_prompt=custom_prompt
+                system_prompt=custom_prompt,
+                llm_config=llm_config
             )
             if response:
                 stage1_results.append({
@@ -58,24 +53,21 @@ Be specific about:
                 })
 
     if not stage1_results:
-        raise Exception("Failed to get responses from any council member. Please check your API key and Azure configuration.")
+        # If BYOK failed, provide specific error
+        if llm_config:
+            raise Exception(f"Failed to get responses. Check your {llm_config.get('provider')} API key.")
+        raise Exception("Failed to get responses from any council member.")
 
     return stage1_results
 
 
 async def stage2_collect_rankings(
     user_query: str,
-    stage1_results: List[Dict[str, Any]]
+    stage1_results: List[Dict[str, Any]],
+    llm_config: Optional[Dict[str, str]] = None
 ) -> Tuple[List[Dict[str, Any]], Dict[str, str]]:
     """
     Stage 2: Each model ranks the anonymized responses.
-
-    Args:
-        user_query: The original user query
-        stage1_results: Results from Stage 1
-
-    Returns:
-        Tuple of (rankings list, label_to_model mapping)
     """
     # Create anonymized labels for responses (Response A, Response B, etc.)
     labels = [chr(65 + i) for i in range(len(stage1_results))]  # A, B, C, ...
@@ -126,7 +118,7 @@ Now provide your evaluation and ranking:"""
     messages = [{"role": "user", "content": ranking_prompt}]
 
     # Get rankings from all council models in parallel
-    responses = await query_models_parallel(get_council_members(), messages)
+    responses = await query_models_parallel(get_council_members(), messages, llm_config)
 
     # Format results
     stage2_results = []
@@ -146,18 +138,11 @@ Now provide your evaluation and ranking:"""
 async def stage3_synthesize_final(
     user_query: str,
     stage1_results: List[Dict[str, Any]],
-    stage2_results: List[Dict[str, Any]]
+    stage2_results: List[Dict[str, Any]],
+    llm_config: Optional[Dict[str, str]] = None
 ) -> Dict[str, Any]:
     """
     Stage 3: Chairman synthesizes final response.
-
-    Args:
-        user_query: The original user query
-        stage1_results: Individual model responses from Stage 1
-        stage2_results: Rankings from Stage 2
-
-    Returns:
-        Dict with 'model' and 'response' keys
     """
     # Build comprehensive context for chairman
     stage1_text = "\n\n".join([
@@ -190,7 +175,7 @@ Provide a clear, well-reasoned final answer that represents the council's collec
     messages = [{"role": "user", "content": chairman_prompt}]
 
     # Query the chairman model
-    response = await query_model(get_chairman(), messages)
+    response = await query_model(get_chairman(), messages, llm_config)
 
     if response is None:
         # Fallback if chairman fails
@@ -208,12 +193,6 @@ Provide a clear, well-reasoned final answer that represents the council's collec
 def parse_ranking_from_text(ranking_text: str) -> List[str]:
     """
     Parse the FINAL RANKING section from the model's response.
-
-    Args:
-        ranking_text: The full text response from the model
-
-    Returns:
-        List of response labels in ranked order
     """
     import re
 
@@ -245,13 +224,6 @@ def calculate_aggregate_rankings(
 ) -> List[Dict[str, Any]]:
     """
     Calculate aggregate rankings across all models.
-
-    Args:
-        stage2_results: Rankings from each model
-        label_to_model: Mapping from anonymous labels to model names
-
-    Returns:
-        List of dicts with model name and average rank, sorted best to worst
     """
     from collections import defaultdict
 
@@ -286,15 +258,9 @@ def calculate_aggregate_rankings(
     return aggregate
 
 
-async def generate_conversation_title(user_query: str) -> str:
+async def generate_conversation_title(user_query: str, llm_config: Optional[Dict[str, str]] = None) -> str:
     """
-    Generate a short title for a conversation based on the first user message.
-
-    Args:
-        user_query: The first user message
-
-    Returns:
-        A short title (3-5 words)
+    Generate a short title for a conversation.
     """
     title_prompt = f"""Generate a very short title (3-5 words maximum) that summarizes the following question.
 The title should be concise and descriptive. Do not use quotes or punctuation in the title.
@@ -305,47 +271,32 @@ Title:"""
 
     messages = [{"role": "user", "content": title_prompt}]
 
-    # Use gemini-2.5-flash for title generation (fast and cheap)
-    response = await query_model("google/gemini-2.5-flash", messages, timeout=30.0)
+    # For fast title generation, try to use a cheaper model if possible or just use the same config
+    # We'll just reuse the user's config to be simple (so 'gpt-4o' or 'claude-3.5-sonnet')
+    # If using deepseek or anthropic, it will use that.
+    
+    response = await query_model("title-gen", messages, llm_config, timeout=30.0)
 
     if response is None:
-        # Fallback to a generic title
         return "New Conversation"
 
     title = response.get('content', 'New Conversation').strip()
-
-    # Clean up the title - remove quotes, limit length
     title = title.strip('"\'')
-
-    # Truncate if too long
     if len(title) > 50:
         title = title[:47] + "..."
 
     return title
 
 
-async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
+async def run_full_council(user_query: str, custom_roles: Optional[List[Dict]] = None, llm_config: Optional[Dict[str, str]] = None) -> Tuple[List, List, Dict, Dict]:
     """
-    Run the complete 3-stage council process.
-
-    Args:
-        user_query: The user's question
-
-    Returns:
-        Tuple of (stage1_results, stage2_results, stage3_result, metadata)
+    Run the complete 3-stage council process with BYOK support.
     """
     # Stage 1: Collect individual responses
-    stage1_results = await stage1_collect_responses(user_query)
-
-    # If no models responded successfully, return error
-    if not stage1_results:
-        return [], [], {
-            "model": "error",
-            "response": "All models failed to respond. Please try again."
-        }, {}
+    stage1_results = await stage1_collect_responses(user_query, custom_roles, llm_config)
 
     # Stage 2: Collect rankings
-    stage2_results, label_to_model = await stage2_collect_rankings(user_query, stage1_results)
+    stage2_results, label_to_model = await stage2_collect_rankings(user_query, stage1_results, llm_config)
 
     # Calculate aggregate rankings
     aggregate_rankings = calculate_aggregate_rankings(stage2_results, label_to_model)
@@ -354,7 +305,8 @@ async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
     stage3_result = await stage3_synthesize_final(
         user_query,
         stage1_results,
-        stage2_results
+        stage2_results,
+        llm_config
     )
 
     # Prepare metadata
@@ -364,3 +316,4 @@ async def run_full_council(user_query: str) -> Tuple[List, List, Dict, Dict]:
     }
 
     return stage1_results, stage2_results, stage3_result, metadata
+

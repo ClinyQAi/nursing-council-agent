@@ -111,14 +111,19 @@ export const api = {
   /**
    * Send a message in a conversation.
    */
-  async sendMessage(conversationId, content) {
+  async sendMessage(conversationId, content, config = {}) {
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Provider': config.provider || '',
+      'X-Model': config.model || '',
+      'X-API-Key': config.apiKey || ''
+    };
+
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify({ content }),
       }
     );
@@ -134,9 +139,10 @@ export const api = {
    * @param {string} content - The message content
    * @param {function} onEvent - Callback function for each event: (eventType, data) => void
    * @param {Array} customRoles - Optional array of custom role objects
+   * @param {Object} config - BYOK config (provider, model, apiKey)
    * @returns {Promise<void>}
    */
-  async sendMessageStream(conversationId, content, onEvent, customRoles = []) {
+  async sendMessageStream(conversationId, content, onEvent, customRoles = [], config = {}) {
     // Filter to only include custom roles (those added by user)
     const customRolesToSend = customRoles.filter(r => r.isCustom).map(r => ({
       id: r.id,
@@ -145,13 +151,18 @@ export const api = {
       icon: r.icon || '👤'
     }));
 
+    const headers = {
+      'Content-Type': 'application/json',
+      'X-Provider': config.provider || '',
+      'X-Model': config.model || '',
+      'X-API-Key': config.apiKey || ''
+    };
+
     const response = await fetch(
       `${API_BASE}/api/conversations/${conversationId}/message/stream`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: headers,
         body: JSON.stringify({
           content,
           custom_roles: customRolesToSend
