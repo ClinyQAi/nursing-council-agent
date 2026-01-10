@@ -7,8 +7,8 @@ message: >-
   file.
 type: software
 authors:
-  - name: Ai Education
-    email: lincoln@practicedev.cloud
+  - name: Lincoln Gombedza
+    email: info@nursingcitizendevelopment.com
     alias: NurseCitizenDeveloper
 repository-code: 'https://github.com/ClinyQAi/nursing-council-agent'
 url: 'https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2'
