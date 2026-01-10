@@ -15,7 +15,7 @@ x-lfs: true
 > **Part of [AI in Nursing Education: A Multimodal Learning Toolkit](https://practicedev.cloud/)**
 
 [![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2)
-[![AI Educator Toolkit](https://img.shields.io/badge/📚%20AI%20Educator-Toolkit-purple)](https://ai-educator-toolkit.practicedev.cloud)
+[![AI in Nursing Education: A Multimodal Learning Toolkit](https://img.shields.io/badge/📚%20AI%20in%20Nursing-Toolkit-purple)](https://practicedev.cloud/)
 
 ![Nursing Council Agent App](app_screenshot.png)
 
