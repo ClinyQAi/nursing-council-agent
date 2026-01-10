@@ -75,7 +75,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## About the Author
 
-**Lincoln Gombedza** is a **Registered Learning Disability Nurse (RNLD)** and **Practice Educator** with a passion for leveraging AI to enhance nursing education and clinical practice. As the founder of **Nursing Citizen Development**, Lincoln champions the "Nurse as Citizen Developer" movement—empowering healthcare professionals to build their own AI-powered tools.
+**Lincoln Gombedza** is a **Registered Learning Disability Nurse (RNLD)** and **Practice Educator** with a passion for leveraging AI to enhance nursing education and clinical practice. As the founder of Nursing Citizen Development, Lincoln champions the "Nurse as Citizen Developer" movement—empowering healthcare professionals to build their own AI-powered tools.
 
 ## Acknowledgements
 
