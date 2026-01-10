@@ -12,7 +12,7 @@ x-lfs: true
 
 # Nursing Council Agent
 
-> **Part of [AI in Nursing Education: A Multimodal Learning Toolkit](https://github.com/ClinicalQualityAI/AI-Educator-Toolkit)**
+> **Part of [AI in Nursing Education: A Multimodal Learning Toolkit](https://practicedev.cloud/)**
 
 [![Hugging Face Spaces](https://img.shields.io/badge/🤗%20Hugging%20Face-Spaces-blue)](https://huggingface.co/spaces/NurseCitizenDeveloper/Nursing-Council-Agent-V2)
 [![AI Educator Toolkit](https://img.shields.io/badge/📚%20AI%20Educator-Toolkit-purple)](https://ai-educator-toolkit.practicedev.cloud)
@@ -75,7 +75,7 @@ MIT License - See [LICENSE](LICENSE) for details.
 
 ## About the Author
 
-**Lincoln Gombedza** is a **Registered Learning Disability Nurse (RNLD)** and **Practice Educator** with a passion for leveraging AI to enhance nursing education and clinical practice. As the founder of [Ai Education](https://practicedev.cloud), Lincoln champions the "Nurse as Citizen Developer" movement—empowering healthcare professionals to build their own AI-powered tools.
+**Lincoln Gombedza** is a **Registered Learning Disability Nurse (RNLD)** and **Practice Educator** with a passion for leveraging AI to enhance nursing education and clinical practice. As the founder of **Nursing Citizen Development**, Lincoln champions the "Nurse as Citizen Developer" movement—empowering healthcare professionals to build their own AI-powered tools.
 
 ## Acknowledgements
 
@@ -91,7 +91,7 @@ Special thanks to all nursing educators and students who provided feedback durin
 
 ---
 
-**Built with ❤️ by Lincoln Gombedza @ [Ai Education](https://practicedev.cloud)**
+**Built with ❤️ by Lincoln Gombedza @ [Nursing Citizen Development](https://practicedev.cloud)**
 
-*Part of the [AI in Nursing Education: A Multimodal Learning Toolkit](https://ai-educator-toolkit.practicedev.cloud)*
+*Part of the [AI in Nursing Education: A Multimodal Learning Toolkit](https://practicedev.cloud/)*
 
